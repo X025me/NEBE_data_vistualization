@@ -1,0 +1,46 @@
+from dataclasses import field
+from datetime import date
+from rest_framework import serializers
+from .models import Request
+from api.user.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.utils.module_loading import import_string
+from data_v.models import NewvoteRcmax, NewvoteHoprmax
+from data_v.serializers import RcMAXVoteSerializer, HOPRMAXVoteSerializer
+from generic_relations.relations import GenericRelatedField
+
+
+
+
+ 
+
+
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
+    content_object = GenericRelatedField({
+        NewvoteHoprmax: HOPRMAXVoteSerializer(),
+        NewvoteRcmax: RcMAXVoteSerializer()
+    })
+    models = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Request
+        fields = ['id', 'owner', 'status', 'request_description','content_type','object_id', 'content_object', 'created_date', "models"  ]
+
+
+    def get_owner(self, obj):
+        user = User.objects.get(id=obj.owner.id)
+        return user.email
+    
+    def get_models(self, obj):
+        type = obj.content_type.model_class()
+        name =  type._meta.object_name
+        data ={
+            "name": name
+        }
+        return data
+
+
+    

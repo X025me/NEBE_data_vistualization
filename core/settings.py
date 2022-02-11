@@ -28,7 +28,8 @@ SECRET_KEY = os.getenv(
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(" ")
-
+BACKEND_DIR = BASE_DIR  # rename variable for clarity
+FRONTEND_DIR = BASE_DIR / 'frontend'
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,9 +41,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    'django_filters',
     "api",
     "api.user",
     "api.authentication",
+    "data_v",
+    'interaction',
+    'whitenoise.runserver_nostatic',
+    'frontend',
+    'generic_relations',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -61,7 +69,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [FRONTEND_DIR / 'build'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -83,9 +91,9 @@ DATABASES = {
     "default": {
         "ENGINE": "mssql",
         "NAME": "NEBE_Sept",
-        "USER": "z-angel",
-        "PASSWORD": "123456789",
-        "HOST": "172.20.21.55, 1433",
+        "USER": "sa",
+        "PASSWORD": "9Sn#9H{#",
+        "HOST": "0.0.0.0, 1433",
         "OPTIONS": {'driver': 'ODBC Driver 17 for SQL Server'}
     },
 }
@@ -125,6 +133,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [FRONTEND_DIR / 'build' / 'static']
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage')
+
+STATIC_ROOT = BACKEND_DIR / 'static'
+
+
+WHITENOISE_ROOT = FRONTEND_DIR / 'build' / 'root'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -141,14 +158,17 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "api.authentication.backends.ActiveSessionAuthentication",
     ),
-    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    # "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
 }
 
 # ##################################################################### #
 # ################### CORS              ############################### #
 # ##################################################################### #
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:8000"]
 
 # ##################################################################### #
 # ################### TESTING           ############################### #
@@ -156,3 +176,9 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 TESTING = False
 TEST_RUNNER = "core.test_runner.CoreTestRunner"
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "exo25me@gmail.com"
+EMAIL_HOST_PASSWORD = "vpmenfrvynbdcusq"

@@ -34,10 +34,13 @@ class LoginSerializer(serializers.Serializer):
             raise exceptions.ValidationError(
                 {"success": False, "msg": "Password is required to log in."}
             )
+        
         user = authenticate(username=email, password=password)
 
         if user is None:
             raise exceptions.AuthenticationFailed({"success": False, "msg": "Wrong credentials"})
+        if not user.verified:
+            raise exceptions.AuthenticationFailed({"success": False, "msg": "Please Activate this account by going to your outlook account "})
 
         if not user.is_active:
             raise exceptions.ValidationError(
@@ -55,9 +58,10 @@ class LoginSerializer(serializers.Serializer):
             session = ActiveSession.objects.create(
                 user=user, token=_generate_jwt_token(user)
             )
+        print('user: - ', user)
 
         return {
             "success": True,
             "token": session.token,
-            "user": {"_id": user.pk, "username": user.username, "email": user.email},
+            "user": {"_id": user.pk, "username": user.username, "email": user.email, 'is_admin': user.is_admin, 'is_staff': user.is_staff, 'is_superuser': user.is_superuser},
         }
