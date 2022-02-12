@@ -12,7 +12,13 @@ from generic_relations.relations import GenericRelatedField
 
 
 
- 
+class RequestCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ['id', 'owner', 'status', 'request_description','content_type','object_id', 'content_object', 'created_date', "models"  ]
+
+        
+
 
 
 
