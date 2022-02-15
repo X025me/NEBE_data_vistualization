@@ -12,10 +12,9 @@ class ActiveSessionAuthentication(authentication.BaseAuthentication):
     auth_error_message = {"success": False, "msg": "User is not logged on."}
 
     def authenticate(self, request):
-
         request.user = None
-
         auth_header = authentication.get_authorization_header(request)
+        print('auth header', auth_header)
 
         if not auth_header:
             return None

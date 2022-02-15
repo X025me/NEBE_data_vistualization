@@ -2,7 +2,7 @@ from dataclasses import field, fields
 from operator import mod
 from pyexpat import model
 from rest_framework import serializers
-from .models import Candidate, Pollingstation, Politicatparty, NewvoteHoprmax, NewvoteRcmax, Hoprconstituency, Regionalconstituency, Region, NewvoteRcmax, NewvoteRcresult, NewvoteHopresult
+from .models import Candidate, Pollingstation, Politicatparty, NewvoteHoprmax, NewvoteRcmax, Hoprconstituency, Regionalconstituency, Region, NewvoteRcmax, NewvoteRcresult, NewvoteHopresult, NewvoteHoprgeneral, NewvoteRcgeneral
 
 
 class PoliticalPartySerializer(serializers.ModelSerializer):
@@ -73,7 +73,7 @@ class HOPRMAXVoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewvoteHoprmax
         fields = '__all__'
-        depth=3
+        depth=2
 
 
 class RcMAXVoteSerializer(serializers.ModelSerializer):
@@ -83,7 +83,19 @@ class RcMAXVoteSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth=3
 
+class HOPRGeneralSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewvoteHoprgeneral
+        fields = '__all__'
+        depth=2
 
+class RCGeneralSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewvoteRcgeneral
+        fields = '__all__'
+        depth=2
+
+        
 class PollingstationSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -103,3 +115,30 @@ class HOPRResultsSerializer(serializers.ModelSerializer):
         model = NewvoteHopresult
         fields = '__all__'
         depth = 2
+
+
+class RequestViewSerializer(serializers.ModelSerializer):
+    candiate = serializers.SerializerMethodField()
+    constituency = serializers.SerializerMethodField()
+
+    class Meta:
+        model=NewvoteHoprmax
+        fields =['id', 'candiate', 'constituency']
+        depth: 3
+
+    def get_candiate(self, obj):
+        candidate = obj.result.candidate
+        data ={
+            'candidateName': candidate.fullname,
+            'vote': obj.result.vote,
+            
+        }
+        return data
+
+    def get_constituency(self, obj):
+        constituency = Hoprconstituency.objects.get(constituencyid=obj.result.candidate.constituencyid.constituencyid)
+        data = {
+            'name': constituency.constituencyname,
+            'id': constituency.constituencyid
+        }
+        return data

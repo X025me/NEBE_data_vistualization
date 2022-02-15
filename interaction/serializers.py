@@ -13,14 +13,21 @@ from generic_relations.relations import GenericRelatedField
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Request
-        fields = ['id', 'owner', 'status', 'request_description','content_type','object_id', 'content_object', 'created_date', "models"  ]
+        fields = ['id', 'owner', 'status', 'request_description','object_id', 'content_object','content_type',  'created_date',  ]
+    
 
         
 
-
-
+class ReqeuestedSerializer(serializers.Serializer):
+    content_object = GenericRelatedField({
+        NewvoteHoprmax: HOPRMAXVoteSerializer(),
+        NewvoteRcmax: RcMAXVoteSerializer()
+    })
+    # class Meta:
+    #     fields = ['content_object']
 
 
 class RequestSerializer(serializers.ModelSerializer):
