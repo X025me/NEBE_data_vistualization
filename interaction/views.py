@@ -1,3 +1,4 @@
+from asyncio import constants
 from multiprocessing import context
 from statistics import mode
 from unittest import result
@@ -30,6 +31,21 @@ class RequstViewSetYes(generics.ListAPIView):
     permission_classes = (AllowAny,)
     filter_backends = (SearchFilter, OrderingFilter)
 
+@api_view(['GET'])
+@authentication_classes([ActiveSessionAuthentication,])
+@permission_classes([IsAuthenticated, ])
+def approval(request, id):
+    if request.method == 'GET':
+        print(request.user.is_superuser)
+        if request.user.is_superuser:
+            request = Request.objects.get(id=id)
+            request.status = True
+            request.save()
+            return Response('Approved')
+        else:
+            return Response('You dont have the permission to approve this')
+    else:
+        return Response("apporval API")
 
 
 @api_view(['POST', 'GET'])
@@ -37,11 +53,13 @@ class RequstViewSetYes(generics.ListAPIView):
 @permission_classes([IsAuthenticated])
 def request_create(request, model):
     if request.method == 'POST':
+        print(request.data)
         models = ContentType.objects.get(model=model)
-        serializer = RequestCreateSerializer(data=request.data, context={'request', request})
+        serializer = RequestCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            data = {'Done'}
+            return Response(data)
         else:
             print(serializer.errors)
             return Response(serializer.errors)
@@ -55,19 +73,19 @@ def request_create(request, model):
             serializer = HOPRGeneralSerializer(inst, many=True)
             return Response(serializer.data)
         if model == 'newvotehopresult':
-            inst = data.objects.all()
-            serializer = HOPRResultsSerializer(inst, many=True).prefetch_related('candidate')
+            inst = data.objects.all().prefetch_related('candidate')
+            serializer = HOPRResultsSerializer(inst, many=True)
             return Response(serializer.data)
         if model == 'newvotehoprmax':
             inst = data.objects.all().prefetch_related('result__candidate')
             serializer = RequestViewSerializer(inst, many=True)
             return Response(serializer.data)
         if model == 'newvotercgeneral':
-            inst = data.objects.all().prefetch_related('result__candidate')
+            inst = data.objects.all().prefetch_related('rcconstituency')
             serializer = RCGeneralSerializer(inst, many=True)
             return Response(serializer.data)
         if model == 'newvotercresult':
-            inst = data.objects.all().prefetch_related('result__candidate')
+            inst = data.objects.all().prefetch_related('candidate')
             serializer = RCResultsSerializer(inst, many=True)
             return Response(serializer.data)
         if model == 'newvotercmax':
