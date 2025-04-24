@@ -169,7 +169,7 @@ TESTING = False
 TEST_RUNNER = "core.test_runner.CoreTestRunner"
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "exo25me@gmail.com"
-EMAIL_HOST_PASSWORD = "vpmenfrvynbdcusq"
+EMAIL_HOST = "smtp.john.com"
+EMAIL_PORT = 408
+EMAIL_HOST_USER = "john@john.com"
+EMAIL_HOST_PASSWORD = "########"
