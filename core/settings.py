@@ -79,9 +79,9 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "mssql",
-        "NAME": "NEBE_Sept",
+        "NAME": "N_Sept",
         "USER": "sa",
-        "PASSWORD": "9Sn#9H{#",
+        "PASSWORD": "#########",
         "HOST": "0.0.0.0, 1433",
         "OPTIONS": {'driver': 'ODBC Driver 17 for SQL Server'}
     },
